@@ -5,11 +5,57 @@ import seaborn as sns
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 
+df = pd.read_csv("dataset/weatherHistory.csv")
+
 # Page Config
 st.set_page_config(
-    page_title="Weather Analysis Dashboard"
+    page_title="Weather Analysis Dashboard",
     layout="wide"
 )
+
+# --- Custom CSS for Dark Theme ---
+def local_css(file_name):
+    with open(file_name) as f:
+        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
+def style_app():
+    # You can create a file named style.css and add the css code there
+    # Or you can add the CSS directly as a string
+    css = """
+    <style>
+    /* Main app background */
+    .stApp {
+        background-color: #1E1E1E;
+        color: #FAFAFA;
+    }
+    /* Sidebar background */
+    [data-testid="stSidebar"] {
+        background-color: #252526;
+    }
+    /* Widget labels */
+    .st-emotion-cache-16txtl3 {
+        color: #FAFAFA;
+    }
+    /* Metric label */
+    .st-emotion-cache-1xarl3l {
+        color: #A0A0A0;
+    }
+    /* Headers */
+    h1, h2, h3, h4, h5, h6 {
+        color: #FFFFFF;
+    }
+    /* Matplotlib plot background */
+    .stPlotlyChart, .stpyplot {
+       border-radius: 10px;
+       background-color: #2a2a2e;
+       padding: 10px;
+    }
+    </style>
+    """
+    st.markdown(css, unsafe_allow_html=True)
+
+# Apply the custom style
+style_app()
 
 # Load data
 @st.cache_data
@@ -45,8 +91,8 @@ if df is not None:
 
 
     # --- Main Page Content ---
-    st.title("🌤️ Weather History Analysis and Prediction")
-    st.markdown("This dashboard explores the relationship between weather conditions and provides a tool to predict the apparent temperature.")
+    st.title("Weather History Analysis and Prediction")
+    st.markdown("Explores the relationship between weather conditions and provides a tool to predict the apparent temperature.")
 
     # --- EDA Section ---
     st.header("Exploratory Data Analysis")
@@ -55,6 +101,7 @@ if df is not None:
 
     with col1:
         st.subheader("Monthly Average Temperatures")
+        df['Formatted Date'] = pd.to_datetime(df['Formatted Date'], utc=True)
         df_monthly = df.set_index('Formatted Date')[['Temperature (C)', 'Apparent Temperature (C)']].resample('M').mean()
         st.line_chart(df_monthly)
         st.markdown("We can observe a clear seasonal pattern in temperatures.")
